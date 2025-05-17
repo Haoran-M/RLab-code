@@ -1,0 +1,64 @@
+---
+title: "Lab 09: Factors, Dates and Times"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r}
+library(tidyverse)
+library(forcats)
+library(lubridate)
+yvr <- read_csv("weatherYVR.csv",
+  col_types = cols(
+    `Date/Time` = col_character()
+  )
+)
+yvr
+```
+
+Run the above code chunk to read in **daily** weather
+data from YVR in 2003. Coercing `Date/Time` to a character vector is done because different versions of R and operating systems may read it in as a date-time object instead, negating Exercise 1 below.
+
+1. Coerce the `Date/Time` variable to a date object
+and rename it Date.
+
+```{r}
+
+```
+
+2. Make a time series plot (with lines) 
+of the daily maximum temperature by day.
+
+```{r}
+
+```
+
+3. Change the `Month` variable from 
+numeric to a factor.
+(Hint: The `month()` function with the `label=TRUE` argument will
+extract the months from a date-time object.)
+
+```{r}
+
+
+```
+
+4. Plot the average maximum temperature *versus* month.
+Then, redo this plot with months ordered by 
+average maximum.
+
+```{r}
+
+
+
+```
+
+```{r}
+
+
+```

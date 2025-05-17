@@ -1,0 +1,72 @@
+---
+title: "Lab 06: Midterm Recap"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r, include=TRUE, message=FALSE}
+
+
+library(tidyverse)
+```
+
+
+
+In this lab we will briefly recap some of the key `R` functions you have
+seen in the past few weeks. 
+
+1. You should first read in the file provided,
+`canada_births.csv`,  using the appropriate `read_`
+function,
+removing the comments in the file. 
+Assign this to an `R` object called `canada_births`. 
+Print the first 5 rows of this file. 
+This file describes the number of births in Canada each month 
+for the last several years.
+
+```{r}
+
+canada_births <- read.csv("canada_births.csv", comment.char = "#")
+
+
+```
+
+
+2. This data is not tidy, so we will first tidy it. Use `pivot_longer`
+to create a new tibble, `canada_births_tidy` where 
+we have the births for a single year and month in each row.
+This should create a tibble with columns that
+you should call `year,month,births`.
+
+```{r}
+canada_births_tidy <- canada_births %>%
+  pivot_longer(
+    cols = -year,       
+    names_to = "month", 
+    values_to = "births"
+  )
+```
+
+
+3. Plot this data, where `month` is on the horizontal axis,
+the number of births is on the vertical axis and there
+is a different line for each year in the dataset.
+Color these lines red and use `alpha=0.5` to show all
+lines. To do this plot you will need to first convert the `month` column 
+to be a number, using `mutate` and `parse_number`
+
+
+```{r}
+ggplot(canada_births_tidy, aes(x = month, y = births, group = year)) +
+  geom_line(color = "red", alpha = 0.5) + 
+  labs(x = "Month", y = "Number of Births") 
+ 
+```
+
+
+

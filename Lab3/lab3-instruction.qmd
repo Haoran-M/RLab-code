@@ -1,0 +1,185 @@
+---
+title: "Lab 3"
+author: "Muye"
+format: revealjs
+editor: visual
+---
+
+
+## Load the Data
+
+```{r, echo=TRUE}
+library(tidyverse)  # load a universe of packages
+# # An alternative to loading the whole {tidyverse} is loading the common sub-packages:  
+# library(readr)  # the sub-package that includes read_csv
+# library(dplyr)  # for data transformation
+# library(tidyr)  # for re-formating data table
+# library(ggplot2)   # For plotting
+hiv <- read_csv("HIVprevRaw.csv") # `read_csv` is from {readr}
+```
+
+## Load the Data
+
+Tidyverse version:
+```{r, eval=FALSE, echo=TRUE}
+library(tidyverse)
+hiv <- read_csv("HIVprevRaw.csv")
+```
+
+Base R version:
+```{r, eval=FALSE, echo=TRUE}
+hiv <- read.csv("HIVprevRaw.csv", stringsAsFactors = FALSE)
+```
+* `read.csv` will always try to add a "X" before non-letter column names, and replace whitespaces with ".". That's why the first column names are turned into "Estimated.HIV.Prevalence.....Ages.15.49." and "X1979", "X1980", etc., if `read.csv` is used.
+
+* We set `stringsAsFactors = FALSE` because it is usually the better option. 
+
+
+## Column Variable Names
+
+Usually, we just type the column name as they are. E.g., for the `gapminder` data:
+```{r, eval=FALSE, echo=TRUE}
+gapminder$year  # return the year column
+select(gapminder, -year)  # remove the year column
+rename(gapminder, Year = year)  # rename to Year
+```
+But this is only the case when the column name satisfy the R naming rules:
+- Name start with a letter
+- No special characters or white
+
+## Column Variable Names
+
+Whenever the column name does not meet the R naming rules, surround the column name with backticks \`\` (usually at the top-left corner of the keyboard). E.g., for this `hiv` data:
+```{r, eval=FALSE, echo=TRUE}
+print(hiv$`Estimated HIV Prevalence% - (Ages 15-49)`)
+select(hiv, -`1979`)
+```
+
+The followings are wrong:
+```{r, eval=FALSE, echo=TRUE}
+hiv$1979  # returns error
+select(hiv, 1979)  # trying the select the 1979th column instead of the columne named "1979
+arrange(hiv, "1979")  # trying to sort a single string value "1979" -> nothing happens
+```
+
+## Column Variable Names
+If using `read.csv`, usually no worries about the backticks, as `read.csv` will automatically change the names:
+```{r, eval=FALSE, echo=TRUE}
+print(hiv$X1979)  # no backticks needed
+```
+
+## How Does {tidyverse} Work Internally
+
+The example from a course slide:
+```
+jan13 <- filter(flights, month == 1 & dep_delay > 1)
+```
+* We directly use the column name such as the `month` and `dep_delay` inside a tidyverse function
+* Internally, the function will interpret them as `flights$month` and `flights$dep_delay`
+* That's one major reason why {tidyverse} is tidy: free users from repetitively typing the dataset name or the `$`
+```{r, eval=FALSE, echo=TRUE}
+# same task without {tidyverse}
+# only use base R syntax:
+flights[flights$month == 1 & flights$dep_delay > 1,]
+```
+
+
+## Have a Peek into the Data
+
+Rstudio allows users to click on the variable that stores the data.
+
+* In the `Environment` panel: directly click it
+* In the script: `Ctrl` + click
+![](rstudio-datapanel.png)
+
+## Have a Peek into the Data
+
+* Same thing can also be accomplished in the console:
+```{r, eval=FALSE, echo=TRUE}
+View(hiv)
+```
+
+* `View` will be handy when you want to have a temporary check on some data transformation result:
+```{r, eval=FALSE, echo=TRUE}
+hiv |>
+  select(...) |> 
+  filter(...) |> 
+  mutate(...) |> 
+  ... |> 
+  View()
+```
+
+## Have a Peek into the Data
+
+Check column names:
+```{r, echo=TRUE}
+names(hiv)
+```
+Long or strange names are not convenient. Will be changed later.
+
+## Have a Peek into the Data
+
+Check the first/last few lines:
+```{r, echo=TRUE}
+head(hiv)
+# tail(hiv)
+```
+## Have a Peek into the Data
+
+Similar to `head` but with some extra info:
+```{r, echo=TRUE}
+str(hiv)
+```
+
+
+## Have a Peek into the Data
+
+Summary statistics for each variable:
+```{r, echo=TRUE}
+summary(hiv)
+```
+
+## Data Transformation Exercises
+
+Write code with `rename`, `select`, `arrange` (functions from `{dplyr}`), fill in the blank code chunks in `Lab 03.qmd`
+
+* Try the help pages. E.g., `?select`. The help page not only explains the syntax, but also gives code examples. Sometimes the help system may get confused where there are several functions with the same name. Solution: add `[package-name]::` before the function name to specify it. E.g. `dplyr::select`
+
+* Be careful about the slight difference between `read_csv` and `read.csv`
+
+
+
+## Data Transformation Exercises
+
+<!-- If using `read_csv`: -->
+<!-- ```{r, eval=FALSE, echo=TRUE} -->
+<!-- hiv <- rename(hiv, Country = `Estimated HIV Prevalence% - (Ages 15-49)`) -->
+<!-- hiv <- select(hiv, -(`1979`:`1989`)) -->
+<!-- hiv <- arrange(hiv, desc(`2011`)) -->
+<!-- ``` -->
+
+<!-- If using `read.csv`: -->
+<!-- ```{r, eval=FALSE, echo=TRUE} -->
+<!-- hiv <- rename(hiv, Country = Estimated.HIV.Prevalence.....Ages.15.49.) -->
+<!-- hiv <- select(hiv, -(X1979:X1989)) -->
+<!-- hiv <- arrange(hiv, desc(X2011)) -->
+<!-- ``` -->
+
+<!-- ## Data Transformation Exercises -->
+
+<!-- If using `read_csv`: -->
+<!-- ```{r, eval=FALSE, echo=TRUE} -->
+<!-- hivcopy |> -->
+<!--   rename(Country = `Estimated HIV Prevalence% - (Ages 15-49)`) |> -->
+<!--   select(-(`1979`:`1989`)) |> -->
+<!--   arrange(desc(`2011`)) -->
+<!-- ``` -->
+
+<!-- If using `read.csv`: -->
+<!-- ```{r, eval=FALSE, echo=TRUE} -->
+<!-- hivcopy |> -->
+<!--   rename(Country = Estimated.HIV.Prevalence.....Ages.15.49.) |> -->
+<!--   select(-(X1979:X1989)) |> -->
+<!--   arrange(desc(X2011)) -->
+<!-- ``` -->
+

@@ -1,0 +1,105 @@
+---
+title: "Lab 03: Data Transformation"
+author: haoran Miao
+format: html
+---
+
+
+
+```{r setup, include=FALSE, message=FALSE, echo=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#| message: false
+
+## first load in the tidyverse packages
+library(tidyverse)
+```
+
+
+
+## HIV prevalence from WHO
+
+- The HIV prevalence data from Lab 2 was modified from its raw form. 
+In this lab we will work with the raw data to explore data transformation.
+
+- A spreadsheet of the data `HIVprevRaw.csv` is available in 
+the Labs-->Lab 3 folder on Canvas. We 
+can read in these data as follows (we'll learn about reading in data in later 
+weeks; note that you must have `HIVprevRaw.csv` in your current working 
+directory or supply the full path in `read_csv()`; 
+please consult your TA if you encounter difficulty):
+
+```{r}
+hiv <- read_csv("HIVprevRaw.csv")
+```
+
+- Take a look at the top few lines of raw data.
+
+```{r}
+head(hiv)
+```
+
+- Make a copy of `hiv` for use in exercise 4.
+
+```{r}
+hivcopy <- hiv
+```
+
+
+- In exercises 1 - 3, save the results of each data manipulation in 
+`hiv`. In exercise 4  you will use the copy `hivcopy`.
+
+
+**Exercises:**
+
+
+1. The first column of the data frame is the country, but it
+has been named:
+`Estimated.HIV.Prevalence.....Ages.15.49.`.
+Use the `rename()` function to rename this column  `Country`.
+
+```{r}
+hiv <- rename(hiv, Country = 'Estimated HIV Prevalence% - (Ages 15-49)')
+
+
+```
+
+
+2. The data from 1979 to 1989 is very sparse. Remove these
+columns from the data frame.
+
+```{r}
+hiv <- select(hiv, -('1979':'1989'))
+
+```
+
+
+3. Sort the data in descending order of prevalence in 2011. 
+Print the first 6 rows of 
+your final data set.
+
+```{r}
+hiv <- hiv %>% arrange(desc(`2011`))
+head(hiv, 6)
+
+```
+
+
+4. Use the copy `hivcopy` and the pipe operator to chain or ``pipe'' the data manipulations 
+of exercises 1-3.
+
+```{r}
+
+hivcopy |>
+  rename(Country = 'Estimated HIV Prevalence% - (Ages 15-49)') |>
+  select(hiv, -('1979':'1989')) |>
+  arrange(desc(`2011`)) |>
+  head(6) 
+
+  
+
+```
+
+

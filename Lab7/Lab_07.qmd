@@ -1,0 +1,60 @@
+---
+title: "Lab 07: Midterm Recap"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+library(tidyverse)
+library(palmerpenguins)
+```
+
+In this lab we will answer some of the questions from the 
+midterm using code, to see how they would be solved in the real world.
+
+To complete this lab you will need the `penguins` data which is
+in the R package `palmerpenguins`.
+
+
+1. We will first create a scatterplot of the penguin data, where the
+`x` variable is `bill_length_mm`, the `y` variable is 
+`bill_depth_mm` and the points are colored by `sex`.
+
+Note you will have some `NA` points here which we don't need to worry about.
+
+
+```{r}
+# Create scatterplot
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = sex)) +
+  geom_point()
+```
+
+
+2. Add a facet to the previous plot, corresponding to the variable `island`.
+
+```{r}
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = sex)) +
+  geom_point()+
+facet_wrap(~ island)
+```
+
+
+3. Finally we will create a more complex plot. 
+We want to have a separate smoother for male and femal penguins, 
+along with coloring the points by `sex`. Finally, we want to have separate
+facet plots for each of the three species. Note you will also get a smoother
+for `NA` values which we can ignore. Set `se = FALSE` in the smoother
+function to make the plot a bit tidier.
+
+```{r}
+
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = sex)) +
+  geom_point() +
+  geom_smooth(aes(group = sex), method = "loess", se = FALSE) +
+  facet_wrap(~ species)
+
+```
+
+

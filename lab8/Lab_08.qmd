@@ -1,0 +1,101 @@
+---
+title: "Lab 08: Relational Data - Solution"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+In this lab we will work with the `nycflights13` data.
+
+1. Add the latitude and longitude of each 
+airport destination to the `flights` table using a `join` function.
+You will find the data on latitude and longitude
+in the `airports` table.
+```{r}
+head(flights)
+head(airports)
+```
+
+```{r}
+
+flights_with_coords <- flights %>%
+  left_join(airports, by = c("dest" = "faa"))
+
+# View the result
+head(flights_with_coords)
+
+```
+
+2. Create a table with the
+year-month-day-flight-tailnum
+combinations that have more than 1 flight (careful about
+missing tailnum). Use this table to filter the flights
+table and then select carrier, flight, origin and dest.
+Which airline used the same flight number for a plane
+that made a trip from La Guardia to St. Louis in 
+the morning and from Newark to Denver in the afternoon?
+
+```{r}
+duplicate_flights <- flights %>%
+  group_by(year, month, day, flight, tailnum) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+filtered_flights <- flights %>%
+  semi_join(duplicate_flights, by = c("year", "month", "day", "flight", "tailnum")) %>%
+  select(carrier, flight, origin, dest)
+
+head(filtered_flights)
+morning_flight <- filtered_flights %>%
+  filter(origin == "LGA" & dest == "STL") 
+afternoon_flight <- filtered_flights %>%
+  filter(origin == "EWR" & dest == "DEN")
+
+common_flights <- morning_flight %>%
+  inner_join(afternoon_flight, by = "flight", suffix = c(".morning", ".afternoon"))
+
+common_flights
+```
+
+3. One of the exercises in the lecture 6 notes asked you
+to create a table called `top_dep_delay` from
+the flights table. 
+`top_dep_delay` was
+comprised of the year-month-days with the 
+3 largest total delays, where total delay
+is defined as the sum of the `dep_delay` variable
+for each year-month-day. 
+Recreate `top_dep_delay` for this lab exercise.
+For each of the three top-delay days, 
+report the median, third quartile and maximum
+of the dep_delay variable in `flights`.
+
+```{r}
+top_dep_delay <- flights %>%
+  group_by(year, month, day) %>%
+  summarise(total_dep_delay = sum(dep_delay, na.rm = TRUE)) %>%
+  arrange(desc(total_dep_delay)) %>%
+  slice_head(n = 3)
+
+print(top_dep_delay)
+
+summary_stats <- flights %>%
+  filter(paste(year, month, day) %in% paste(top_dep_delay$year, top_dep_delay$month, top_dep_delay$day)) %>%
+  summarise(
+    median_dep_delay = median(dep_delay, na.rm = TRUE),
+    third_quartile_dep_delay = quantile(dep_delay, 0.75, na.rm = TRUE),
+    max_dep_delay = max(dep_delay, na.rm = TRUE)
+  )
+
+print(summary_stats)
+```

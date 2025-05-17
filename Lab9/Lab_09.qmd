@@ -1,0 +1,84 @@
+---
+title: "Lab 09: Strings"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+```
+
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+
+In this lab we will do some basic string manipulation 
+using the `flights` data.
+
+1. 
+
+The `tailnum` variable is a unique ID for a plane. We want
+to see how many different possible lengths this ID can have, 
+in this dataset, and if it varies across carriers.
+
+To do this
+
+- Create a new variable `tail_len` which gives the number of characters
+in the tail number for each flight.
+
+- Use `group_by` to get the `mean` and `sd` of `tail_len` for
+each carrier. You will need to deal with `NA` values.
+How many carriers have planes with tail numbers shorter than 6?
+
+
+
+```{r}
+flights <- flights %>%
+  mutate(tail_len = nchar(tailnum))
+carrier_tail_stats <- flights %>%
+  group_by(carrier) %>%
+  summarize(
+    mean_tail_len = mean(tail_len, na.rm = TRUE),
+    sd_tail_len = sd(tail_len, na.rm = TRUE),
+    num_shorter_than_6 = sum(tail_len < 6, na.rm = TRUE)
+  )
+carriers_with_short_tailnums <- carrier_tail_stats %>%
+  filter(num_shorter_than_6 > 0) %>%
+  nrow()
+carrier_tail_stats
+carriers_with_short_tailnums
+```
+
+
+2. Create a new variable `carr_id` in this dataset which
+combines the carrier code and the tail number, with the separator `_`.
+
+```{r}
+flights <- flights %>%
+  mutate(carr_id = str_c(carrier, tailnum, sep = "_"))
+head(flights)
+
+```
+
+3. In the `planes` datset, Airbus planes are given in the `model` 
+variable by an ID that starts with `A` followed by numbers. The
+first 3 numbers after `A` are most important.
+Write a regular expression to extract these codes (`A` and the 3 numbers
+directly after it) from the `model` column.
+Store this in a vector, keeping only the non missing values.
+
+```{r}
+pattern <- "^A\\d{3}"
+airbus_codes <- planes %>%
+  mutate(airbus_code = str_extract(model, pattern)) %>%
+  filter(!is.na(airbus_code))
+
+airbus_codes
+
+```
+
+

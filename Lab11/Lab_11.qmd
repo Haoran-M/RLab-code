@@ -1,0 +1,83 @@
+---
+title: "Lab 11: Programming and Functions"
+author: Owen G. Ward
+format: pdf
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r}
+library(tidyverse)
+```
+
+The folder `Lab9Data` contains several CSV files.
+Each file contains an ID variable and a variable `res`  that 
+holds results of an experiment on the study subjects.
+You can obtain a vector with the file path and names with
+
+```{r}
+dfiles <- dir("Lab11Data", full.names = TRUE)
+dfiles
+```
+
+1. Read the first datafile into a tibble named
+`ex_data`. Change the name of the `res` column 
+to `experiment1`, by manipulating the `names` attribute
+of `ex_data`. That is, use `names(ex_data)[2] <- "experiment1"`.
+
+```{r}
+ex_data <- read_csv(dfiles[1])
+names(ex_data)[2] <- "experiment1"
+```
+
+2. Write a function `read_ex()` that takes `dfiles`
+and an experiment number `i` as arguments and returns
+a tibble with the name of the `res` column
+changed to the expermiment number. That is,
+`read_ex(dfiles,1)` should
+return the same tibble as in question 1.
+
+```{r}
+read_ex <- function(dfiles, i) {
+  ex_data <- read_csv(dfiles[i])
+  names(ex_data)[2] <- paste0("experiment", i)
+  return(ex_data)
+}
+
+```
+
+3. Use your function from question 2 to 
+read in the second data file. Join this second file to 
+`ex_data` by `ID`.
+
+```{r}
+ex_data <- read_ex(dfiles, 1)
+second_ex <- read_ex(dfiles, 2)
+new_data <- ex_data %>% left_join(second_ex, by = "ID")
+new_data
+
+```
+
+4. Write a function called `read_ex_data()` that
+takes a folder name as its argument and 
+    1. reads in the data filenames from that folder,
+    2. calls `read_ex()` to read the first datafile into 
+    `ex_data`,
+    3. loops through the remaining data files, successively
+    joining them to `ex_data`, and
+    4. returns `ex_data`.
+```{r}
+read_ex_data <- function(folder) {
+  dfiles <- dir(folder, full.names = TRUE)
+  ex_data <- read_ex(dfiles, 1)
+  for (i in 2:length(dfiles)) {
+    ex_data <- ex_data %>% left_join(read_ex(dfiles, i), by = "ID")
+  }
+  return(ex_data)
+}
+final_data <- read_ex_data("Lab11Data")
+final_data
+```

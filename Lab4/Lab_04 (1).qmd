@@ -1,0 +1,62 @@
+---
+title: "Lab 04: Tidy Data"
+author: Your Name
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+## HIV prevalence from WHO
+
+* We used a tidy version of the HIV prevalence data in Lab 2, and
+saw the raw version in Lab 3. In this lab we will tidy the latter into the former.
+
+Don't worry about the use of `read_csv` below, we will discuss this next 
+week.
+
+```{r,message=TRUE}
+library(tidyverse)
+hiv <- read_csv("HIVprevRaw.csv")
+hiv
+```
+
+(The columns for 1988 and 1989 are completely empty and 
+were read in as logical. We will be removing these and so won't
+worry about over-riding the logical with double.)
+
+
+For each of these tasks below you should create a new object 
+with the modified version of the `hiv` data. Use a consistent
+and informative naming convention to make your life easier.
+
+1. The first column of the data frame is the country, but it has been named`Estimated HIV Prevalence% - (Ages 15-49)`.
+Use the `rename()` function to rename this column  `Country`.
+(Hint: The current variable name contains special characters.)
+
+```{r}
+hiv <- rename(hiv, Country = 'Estimated HIV Prevalence% - (Ages 15-49)')
+```
+
+
+2. The data from 1979 to 1989 is very sparse. Remove these columns from the data frame.
+
+```{r}
+hiv <- select(hiv, -('1979':'1989'))
+```
+
+3. Pivot the yearly prevalence estimates into a longer tibble that contains only three columns: `Country`, `year`, and `prevalence`. When you pivot,
+remove explicitly missing values. After pivoting, sort the resulting tibble by `Country`. 
+
+```{r}
+hiv |> 
+  pivot_longer(
+    cols = c('1990' : '2011'),
+    names_to = "year",
+    values_to = "prevalence",
+    values_drop_na = TRUE
+  ) |>
+  arrange(Country,year)
+```
